@@ -5,18 +5,18 @@
 #include <WiFiUdp.h>
 #include <ArduinoOTA.h>
 
-#define WIFI_SSID "TP-LINK_4A0A70"
-#define WIFI_PASSWORD "Warhead#12"
+#define WIFI_SSID "${wifi_ssid}"
+#define WIFI_PASSWORD "${wifi_password}"
 
-#define HOST_NAME "/home/corridor/beam_1"
-#define LED_STREP_SUBS "/home/corridor/beam_1/led_strip"
-#define LIGHTING_NAME "/home/corridor/beam_1/lighting"
+#define HOST_NAME "/home/${location}/beam_${id}"
+#define LED_STREP_SUBS "/home/${location}/beam_${id}/led_strip"
+#define LIGHTING_NAME "/home/${location}/beam_${id}/lighting"
 
-#define OTA_PASSWORD "123456"
+#define OTA_PASSWORD "${ota_password}"
 
-#define MQTT_HOST "192.168.0.108"
-#define MQTT_USER "mqtt_usr22"
-#define MQTT_PASSWD "mqtt_passwd1"
+#define MQTT_HOST "${mqtt_host}"
+#define MQTT_USER "${mqtt_user}"
+#define MQTT_PASSWD "${mqtt_password}"
 
 #define NUM_LEDS 720
 #define LED_PIN D2
