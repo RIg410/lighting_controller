@@ -21,6 +21,9 @@
 #define NUM_LEDS 720
 #define LED_PIN D2
 
+#define AC_ZERO_CROSS_PIN D0
+#define AC_LOAD_PIN D1
+
 struct Color {
   byte red;
   byte green;
@@ -29,17 +32,22 @@ struct Color {
 
 byte algorithmId = 0;
 byte ledStrepSpeed = -1;
-byte brightness = -1;
 Color color;
 
 WiFiClient espClient;
 PubSubClient client(MQTT_HOST, 1883, espClient);
 Adafruit_NeoPixel strip = Adafruit_NeoPixel(NUM_LEDS, LED_PIN, NEO_GRB + NEO_KHZ800);
 
-#define AC_ZERO_CROSS_PIN D0
-#define AC_LOAD_PIN D1
-byte dimming = 0;
-int timeToCahnge = 0;
+byte dimming = 128;
+
+void zero_crosss_int() {
+  int dimtime = (75 * dimming);   
+  delayMicroseconds(dimtime);    
+  digitalWrite(AC_LOAD_PIN, HIGH);  
+  delayMicroseconds(8);      
+  digitalWrite(AC_LOAD_PIN, LOW);
+}
+
 
 void setupWiFi() {
   WiFi.mode(WIFI_STA);
@@ -57,6 +65,11 @@ void setupWiFi() {
   Serial.println("WiFi connected");
   Serial.println("IP address: ");
   Serial.println(WiFi.localIP());
+}
+
+void setupDimmer() {
+    attachInterrupt(digitalPinToInterrupt(AC_ZERO_CROSS_PIN), zero_crosss_int, RISING);
+    pinMode(AC_LOAD_PIN, OUTPUT);
 }
 
 void setupOTA() {
@@ -91,20 +104,15 @@ void callback(char* topic, byte* payload, unsigned int length) {
   Serial.print(topic);
   Serial.print("] ");
   
+  byte argId = 0;
   if (strcmp(topic, LED_STREP_SUBS) == 0) {
     byte algorithmId = -1;
     byte ledStrepSpeed = -1;
     byte brightness = -1;
     Color color;
-    for (int i = 0; i < length; i++) {
-      
-    }
+    
   } else if (strcmp(topic, LIGHTING_NAME) == 0) {
-    byte dimming = -1;
-    int time = -1;
-    for (int i = 0; i < length; i++) {
-      
-    }
+    dimming = map(100 - payload[0], 0, 100, 0, 128);
   }
 }
 
@@ -116,6 +124,7 @@ void setupMqttClient() {
 void setup() {
   Serial.begin(115200);
   Serial.println("Booting");
+  setupDimmer();
   setupWiFi();
   setupOTA();
   setupMqttClient();
