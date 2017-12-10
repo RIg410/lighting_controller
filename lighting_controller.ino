@@ -23,17 +23,7 @@
 
 #define AC_ZERO_CROSS_PIN D0
 #define AC_LOAD_PIN D1
-#define AC_RELAY_PIN D3
-
-struct Color {
-    byte red;
-    byte green;
-    byte blue;
-};
-
-byte algorithmId = 0;
-byte ledStrepSpeed = -1;
-Color color;
+#define AC_RELE_PIN D3
 
 WiFiClient espClient;
 PubSubClient client(MQTT_HOST, 1883, espClient);
@@ -106,18 +96,16 @@ void callback(char *topic, byte *payload, unsigned int length) {
     Serial.print(topic);
     Serial.print("] ");
 
-    byte argId = 0;
     if (strcmp(topic, LED_STREP_SUBS) == 0) {
-        byte algorithmId = -1;
-        byte ledStrepSpeed = -1;
-        byte brightness = -1;
-        Color color;
-
+        for (int i = 0; i < NUM_LEDS; i++) {
+            strip.setPixelColor(i, strip.Color(payload[0], payload[1], payload[2]));
+        }
+        strip.show();
     } else if (strcmp(topic, LIGHTING_NAME) == 0) {
         if (payload[0] == 0) {
-            digitalWrite(AC_RELAY_PIN, LOW);
+            digitalWrite(AC_LOAD_PIN, LOW);
         } else {
-            digitalWrite(AC_RELAY_PIN, HIGH);
+            digitalWrite(AC_LOAD_PIN, HIGH);
         }
         dimming = map(100 - payload[0], 0, 100, 0, 128);
     }
